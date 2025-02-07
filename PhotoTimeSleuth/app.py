@@ -150,4 +150,4 @@ if __name__ == "__main__":
     print(f"Log file will be saved at: {log_file_path}")
 
     app.config["PHOTO_DIRECTORY"] = args.directory
-    app.run(debug=False)
+    app.run(host= '0.0.0.0', port=5000, debug=False)
