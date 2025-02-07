@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 import piexif
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -90,6 +90,14 @@ def update_metadata():
         return jsonify({"error": message}), 500
 
 
+@app.route("/api/folder_path", methods=["GET"])
+def get_folder_path():
+    """API route to retrieve the folder path."""
+    photo_dir = app.config.get("PHOTO_DIRECTORY")
+    if not photo_dir:
+        return jsonify({"error": "Photo directory is not configured"}), 500
+    return jsonify({"folder_path": photo_dir}), 200
+
 @app.route("/api/photos", methods=["GET"])
 def get_photos():
     """API route to retrieve a list of photos from the directory."""
@@ -103,6 +111,13 @@ def get_photos():
         if file.lower().endswith(("jpg", "jpeg", "png"))
     ]
     return jsonify({"photos": photos}), 200
+
+@app.route('/photos/<path:filename>')
+def serve_photo(filename):
+    """Serve photos from the configured photo directory."""
+    photo_dir = app.config.get("PHOTO_DIRECTORY")
+    return send_from_directory(photo_dir, filename)
+
 
 
 if __name__ == "__main__":

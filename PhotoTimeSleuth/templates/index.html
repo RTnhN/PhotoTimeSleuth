@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        img {
+            max-width: 80%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+        }
+        button, input {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .button-container {
+            margin-bottom: 20px;
+        }
+        #update-indicator {
+            font-weight: bold;
+            color: green;
+            display: none;
+        }
+
+        #content {
+            margin: 0 auto;
+            width: min(800px, 100%);
+            max-width: 800px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+    <h1>Photo Viewer</h1>
+    <div class="button-container">
+        <button onclick="prevPhoto()">Previous</button>
+        <button onclick="nextPhoto()">Next</button>
+    </div>
+    <p>Photo Name: <span id="photo-name"></span></p>
+    <img id="photo" src="" alt="No photo available">
+    <br>
+    <label for="date-picker">Select Date:</label>
+    <input type="datetime-local" id="date-picker">
+    <button onclick="updateMetadata()">Update Date</button>
+    <p id="update-indicator">Date updated successfully!</p>
+    </div>
+
+    <script>
+        let photos = [];
+        let updatedPhotos = {};
+        let currentIndex = 0;
+
+        async function fetchPhotos() {
+            try {
+                const response = await fetch('/api/photos');
+                const data = await response.json();
+                if (data.photos) {
+                    photos = data.photos;
+                    if (photos.length > 0) {
+                        currentIndex = 0;
+                        updatePhoto();
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching photos:', error);
+            }
+        }
+
+        function updatePhoto() {
+            if (photos.length > 0) {
+                document.getElementById('photo-name').textContent = photos[currentIndex];
+                document.getElementById('photo').src = `/photos/${photos[currentIndex]}`;
+                document.getElementById('update-indicator').style.display = updatedPhotos[photos[currentIndex]] ? 'block' : 'none';
+            }
+        }
+
+        function prevPhoto() {
+            if (photos.length > 0) {
+                currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+                updatePhoto();
+            }
+        }
+
+        function nextPhoto() {
+            if (photos.length > 0) {
+                currentIndex = (currentIndex + 1) % photos.length;
+                updatePhoto();
+            }
+        }
+
+        async function updateMetadata() {
+            if (photos.length > 0) {
+                const selectedDate = document.getElementById('date-picker').value;
+                if (!selectedDate) {
+                    alert("Please select a date.");
+                    return;
+                }
+                
+                const formattedDate = selectedDate.replace("T", " ").replace(/-/g, ":") + ":00";
+                
+                try {
+                    const response = await fetch('/api/update_metadata', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            image_path: photos[currentIndex],
+                            new_date: formattedDate
+                        })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        updatedPhotos[photos[currentIndex]] = true;
+                        document.getElementById('update-indicator').style.display = 'block';
+                    } else {
+                        alert("Error: " + data.error);
+                    }
+                } catch (error) {
+                    console.error('Error updating metadata:', error);
+                }
+            }
+        }
+
+        fetchPhotos();
+    </script>
+</body>
+</html>
