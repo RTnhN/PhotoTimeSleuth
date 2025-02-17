@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from datetime import datetime
 
 import piexif
@@ -134,7 +135,7 @@ if __name__ == "__main__":
 
     if not os.path.isdir(args.directory):
         print(f"Error: Directory {args.directory} does not exist or is not accessible.")
-        exit(1)
+        sys.exit(1)
 
     # Define the log file path inside the photo directory
     log_file_path = os.path.join(args.directory, "photo_changes.log")
