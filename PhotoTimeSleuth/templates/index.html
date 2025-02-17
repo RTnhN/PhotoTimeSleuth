@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,20 +10,25 @@
             font-family: Arial, sans-serif;
             text-align: center;
         }
+
         img {
             max-width: 80%;
             height: auto;
             display: block;
             margin: 20px auto;
         }
-        button, input {
+
+        button,
+        input {
             margin: 10px;
             padding: 10px;
             font-size: 16px;
         }
+
         .button-container {
             margin-bottom: 20px;
         }
+
         #update-indicator {
             font-weight: bold;
             color: green;
@@ -37,20 +43,21 @@
         }
     </style>
 </head>
+
 <body>
     <div id="content">
-    <h1>Photo Viewer</h1>
-    <div class="button-container">
-        <button onclick="prevPhoto()">Previous</button>
-        <button onclick="nextPhoto()">Next</button>
-    </div>
-    <p>Photo Name: <span id="photo-name"></span></p>
-    <img id="photo" src="" alt="No photo available">
-    <br>
-    <label for="date-picker">Select Date:</label>
-    <input type="datetime-local" id="date-picker">
-    <button onclick="updateMetadata()">Update Date</button>
-    <p id="update-indicator">Date updated successfully!</p>
+        <h1>Photo Viewer</h1>
+        <div class="button-container">
+            <button onclick="prevPhoto()">Previous</button>
+            <button onclick="nextPhoto()">Next</button>
+        </div>
+        <p>Photo Name: <span id="photo-name"></span></p>
+        <img id="photo" src="" alt="No photo available">
+        <br>
+        <label for="date-picker">Select Date:</label>
+        <input type="datetime-local" id="date-picker">
+        <button onclick="updateMetadata()">Update Date</button>
+        <p id="update-indicator">Date updated successfully!</p>
     </div>
 
     <script>
@@ -103,13 +110,13 @@
                     alert("Please select a date.");
                     return;
                 }
-                
+
                 const formattedDate = selectedDate.replace("T", " ").replace(/-/g, ":") + ":00";
-                
+
                 try {
                     const response = await fetch('/api/update_metadata', {
                         method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             image_path: photos[currentIndex],
                             new_date: formattedDate
@@ -131,4 +138,5 @@
         fetchPhotos();
     </script>
 </body>
+
 </html>
