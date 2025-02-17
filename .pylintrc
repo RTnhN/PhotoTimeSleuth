@@ -1,2 +1,3 @@
 [MESSAGES CONTROL]
+# W1203: logging-fstring-interpolation
 disable=W1203
