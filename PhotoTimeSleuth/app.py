@@ -3,6 +3,7 @@ import os
 import sys
 from datetime import datetime
 
+import psutil
 import piexif
 from flask import Flask, jsonify, render_template, request, send_from_directory
 from werkzeug.utils import secure_filename
@@ -120,6 +121,13 @@ def serve_photo(filename):
     return send_from_directory(photo_dir, filename)
 
 
+def get_local_ip():
+    for _, addrs in psutil.net_if_addrs().items():
+        for addr in addrs:
+            if addr.family == 2 and addr.address.startswith("192.168."):
+                return addr.address  # Returns the first 192.168.x.x address found
+    return None
+
 
 def main():
     import argparse
@@ -151,9 +159,16 @@ def main():
         format="%(asctime)s - %(levelname)s - %(message)s",
     )
 
+    ip_address = get_local_ip()
     port = 5000
+    if not ip_address:
+        serving_ip = f"http://localhost:{port}"
+    else:
+        serving_ip = f"http://{ip_address}:{port}"
+
     print(f"Starting server for directory: {directory}")
     print(f"Log file will be saved at: {log_file_path}")
+    print(f"Serving on {serving_ip}")
 
     app.config["PHOTO_DIRECTORY"] = directory
     app.run(host="0.0.0.0", port=port, debug=False)
