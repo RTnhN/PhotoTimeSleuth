@@ -138,7 +138,10 @@ def main():
     parser.add_argument(
         "--directory",
         type=str,
-        help="Path to the directory containing photos. If not provided, the current working directory will be used.",
+        help=(
+            "Path to the directory containing photos. "
+            "If not provided, the current working directory will be used."
+        ),
     )
     args = parser.parse_args()
 
