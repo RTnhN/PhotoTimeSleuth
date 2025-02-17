@@ -134,7 +134,7 @@ def get_local_ip():
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description="Photo Date App")
+    parser = argparse.ArgumentParser(description="Photo Time Sleuth")
     parser.add_argument(
         "--directory",
         type=str,
