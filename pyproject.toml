@@ -1,15 +1,41 @@
 [project]
 name = "phototimesleuth"
 version = "0.1.0"
-description = "Add your description here"
+description = "Photo metadata timestamp fixer"
 readme = "README.md"
 requires-python = ">=3.9,<4.0"
 dependencies = [
     "flask>=3.1.0",
     "piexif>=1.1.3",
     "psutil>=7.0.0",
+    "pyinstaller>=6.12.0",
     "ruff>=0.9.3",
 ]
 
 [project.scripts]
-PhotoTimeSleuth = "PhotoTimeSleuth.app:main"
+phototimesleuth = "PhotoTimeSleuth.app:main"  # Ensure lowercase script name
+
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["PhotoTimeSleuth*"]  # Ensure this matches your package directory
+
+[tool.setuptools.package-data]
+"PhotoTimeSleuth" = ["templates/*.html", "static/**/*"]
+
+# PyInstaller settings
+[tool.pyinstaller]
+name = "PhotoTimeSleuth"
+entry-point = "PhotoTimeSleuth.app:main"  # Update based on actual script location
+onefile = true   # Creates a single .exe
+console = true  # Hide console for GUI apps
+icon = "assets/icon.ico"  # Optional: specify your app icon
+add-data = [
+    "templates;templates",
+    "static;static"
+]
