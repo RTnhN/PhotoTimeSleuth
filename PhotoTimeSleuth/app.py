@@ -128,12 +128,15 @@ def main():
     parser.add_argument(
         "--directory",
         type=str,
-        required=True,
-        help="Path to the directory containing photos",
+        help="Path to the directory containing photos. If not provided, the current working directory will be used.",
     )
     args = parser.parse_args()
 
     directory = args.directory
+
+    if not directory:
+        directory = os.getcwd()
+
     if not os.path.isdir(directory):
         print(f"Error: Directory {directory} does not exist or is not accessible.")
         sys.exit(1)
