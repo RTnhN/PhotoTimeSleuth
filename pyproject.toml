@@ -10,3 +10,5 @@ dependencies = [
     "ruff>=0.9.3",
 ]
 
+[project.scripts]
+PhotoTimeSleuth = "PhotoTimeSleuth.app:main"

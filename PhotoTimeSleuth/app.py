@@ -121,7 +121,7 @@ def serve_photo(filename):
 
 
 
-if __name__ == "__main__":
+def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="Photo Date App")
@@ -133,12 +133,13 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    if not os.path.isdir(args.directory):
-        print(f"Error: Directory {args.directory} does not exist or is not accessible.")
+    directory = args.directory
+    if not os.path.isdir(directory):
+        print(f"Error: Directory {directory} does not exist or is not accessible.")
         sys.exit(1)
 
     # Define the log file path inside the photo directory
-    log_file_path = os.path.join(args.directory, "photo_changes.log")
+    log_file_path = os.path.join(directory, "photo_changes.log")
 
     # Configure logging dynamically
     logging.basicConfig(
@@ -147,8 +148,12 @@ if __name__ == "__main__":
         format="%(asctime)s - %(levelname)s - %(message)s",
     )
 
-    print(f"Starting server for directory: {args.directory}")
+    port = 5000
+    print(f"Starting server for directory: {directory}")
     print(f"Log file will be saved at: {log_file_path}")
 
-    app.config["PHOTO_DIRECTORY"] = args.directory
-    app.run(host= '0.0.0.0', port=5000, debug=False)
+    app.config["PHOTO_DIRECTORY"] = directory
+    app.run(host="0.0.0.0", port=port, debug=False)
+
+if __name__ == "__main__":
+    main()
