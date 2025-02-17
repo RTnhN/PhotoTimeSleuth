@@ -11,11 +11,21 @@
             text-align: center;
         }
 
+        .photo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 500px;
+            overflow: hidden;
+        }
+
         img {
             max-width: 80%;
             height: auto;
             display: block;
-            margin: 20px auto;
+            transform: rotate(0deg);
+            transition: transform 0.3s ease;
+            max-height: 100%;
         }
 
         button,
@@ -52,7 +62,13 @@
             <button onclick="nextPhoto()">Next</button>
         </div>
         <p>Photo Name: <span id="photo-name"></span></p>
-        <img id="photo" src="" alt="No photo available">
+        <div class="photo-container">
+            <img id="photo" src="" alt="No photo available">
+        </div>
+        <div class="button-container">
+            <button onclick="rotateLeft()">Rotate Left</button>
+            <button onclick="rotateRight()">Rotate Right</button>
+        </div>
         <br>
         <label for="date-picker">Select Date:</label>
         <input type="datetime-local" id="date-picker">
@@ -64,6 +80,7 @@
         let photos = [];
         let updatedPhotos = {};
         let currentIndex = 0;
+        let rotationAngle = 0;
 
         async function fetchPhotos() {
             try {
@@ -86,6 +103,8 @@
                 document.getElementById('photo-name').textContent = photos[currentIndex];
                 document.getElementById('photo').src = `/photos/${photos[currentIndex]}`;
                 document.getElementById('update-indicator').style.display = updatedPhotos[photos[currentIndex]] ? 'block' : 'none';
+                rotationAngle = 0;
+                document.getElementById('photo').style.transform = `rotate(${rotationAngle}deg)`;
             }
         }
 
@@ -101,6 +120,23 @@
                 currentIndex = (currentIndex + 1) % photos.length;
                 updatePhoto();
             }
+        }
+
+        function rotateLeft() {
+            rotationAngle -= 90;
+            document.getElementById('photo').style.transform = `rotate(${rotationAngle}deg)`;
+            adjustPhotoContainer();
+        }
+
+        function rotateRight() {
+            rotationAngle += 90;
+            document.getElementById('photo').style.transform = `rotate(${rotationAngle}deg)`;
+            adjustPhotoContainer();
+        }
+
+        function adjustPhotoContainer() {
+            const photo = document.getElementById('photo');
+            const container = document.querySelector('.photo-container');
         }
 
         async function updateMetadata() {
