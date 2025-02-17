@@ -100,6 +100,7 @@ def get_folder_path():
         return jsonify({"error": "Photo directory is not configured"}), 500
     return jsonify({"folder_path": photo_dir}), 200
 
+
 @app.route("/api/photos", methods=["GET"])
 def get_photos():
     """API route to retrieve a list of photos from the directory."""
@@ -114,7 +115,8 @@ def get_photos():
     ]
     return jsonify({"photos": photos}), 200
 
-@app.route('/photos/<path:filename>')
+
+@app.route("/photos/<path:filename>")
 def serve_photo(filename):
     """Serve photos from the configured photo directory."""
     photo_dir = app.config.get("PHOTO_DIRECTORY")
@@ -172,6 +174,7 @@ def main():
 
     app.config["PHOTO_DIRECTORY"] = directory
     app.run(host="0.0.0.0", port=port, debug=False)
+
 
 if __name__ == "__main__":
     main()
