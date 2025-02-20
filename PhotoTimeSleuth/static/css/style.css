@@ -1,13 +1,17 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #photo-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 1/1;
 }
 
 img {
@@ -16,14 +20,48 @@ img {
     display: block;
     transform: rotate(0deg);
     max-height: 100%;
+    width: auto;
 }
+
+.side-button {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+}
+
+.side-button:hover {
+    background-color: #ddd;
+    border-radius: 5px;
+}
+
+.rotate-button {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    height: 100%;
+    width: 50px;
+
+}
+
+.rotate-button:hover {
+    background-color: #ddd;
+    border-radius: 5px;
+
+}
+
 
 button,
 input {
-    margin: 10px;
-    padding: 10px;
     font-size: 16px;
 }
+
 
 .button-container {
     margin-bottom: 20px;
@@ -36,8 +74,9 @@ input {
 }
 
 #content {
-    margin: 0 auto;
-    width: min(800px, 100%);
-    max-width: 800px;
+    width: min(800px, 100vw);
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }

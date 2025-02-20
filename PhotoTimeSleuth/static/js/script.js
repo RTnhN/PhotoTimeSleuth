@@ -26,7 +26,6 @@ function updatePhoto() {
         document.getElementById('update-indicator').style.display = updatedPhotos[photos[currentIndex]] ? 'block' : 'none';
         rotationAngle = 0;
         document.getElementById('photo').style.transform = `rotate(${rotationAngle}deg)`;
-        adjustPhotoContainer(rotationAngle);
     }
 }
 
@@ -56,15 +55,6 @@ function rotateRight() {
     adjustPhotoContainer(rotationAngle);
 }
 
-function adjustPhotoContainer(rotationAngle) {
-    const photo = document.getElementById('photo');
-    const container = document.getElementById('photo-container');
-    if (rotationAngle % 180 !== 0) {
-        container.style.height = `${photo.width}px`;
-    } else {
-        container.style.height = 'auto';
-    }
-}
 
 async function updateMetadata() {
     if (photos.length > 0) {
