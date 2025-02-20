@@ -11,11 +11,10 @@
             text-align: center;
         }
 
-        .photo-container {
+        #photo-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 500px;
             overflow: hidden;
         }
 
@@ -24,7 +23,6 @@
             height: auto;
             display: block;
             transform: rotate(0deg);
-            transition: transform 0.3s ease;
             max-height: 100%;
         }
 
@@ -62,12 +60,12 @@
             <button onclick="nextPhoto()">Next</button>
         </div>
         <p>Photo Name: <span id="photo-name"></span></p>
-        <div class="photo-container">
-            <img id="photo" src="" alt="No photo available">
-        </div>
         <div class="button-container">
             <button onclick="rotateLeft()">Rotate Left</button>
             <button onclick="rotateRight()">Rotate Right</button>
+        </div>
+        <div id="photo-container">
+            <img id="photo" src="" alt="No photo available">
         </div>
         <br>
         <label for="date-picker">Select Date:</label>
@@ -105,6 +103,7 @@
                 document.getElementById('update-indicator').style.display = updatedPhotos[photos[currentIndex]] ? 'block' : 'none';
                 rotationAngle = 0;
                 document.getElementById('photo').style.transform = `rotate(${rotationAngle}deg)`;
+                adjustPhotoContainer(rotationAngle);
             }
         }
 
@@ -125,18 +124,23 @@
         function rotateLeft() {
             rotationAngle -= 90;
             document.getElementById('photo').style.transform = `rotate(${rotationAngle}deg)`;
-            adjustPhotoContainer();
+            adjustPhotoContainer(rotationAngle);
         }
 
         function rotateRight() {
             rotationAngle += 90;
             document.getElementById('photo').style.transform = `rotate(${rotationAngle}deg)`;
-            adjustPhotoContainer();
+            adjustPhotoContainer(rotationAngle);
         }
 
-        function adjustPhotoContainer() {
+        function adjustPhotoContainer(rotationAngle) {
             const photo = document.getElementById('photo');
-            const container = document.querySelector('.photo-container');
+            const container = document.getElementById('photo-container');
+            if (rotationAngle % 180 !== 0) {
+                container.style.height = `${photo.width}px`;
+            } else {
+                container.style.height = 'auto';
+            }
         }
 
         async function updateMetadata() {
