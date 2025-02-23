@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/lib/plotly-latest.min.js') }}"></script>
     <title>Photo Time Sleuth</title>
 </head>
 
@@ -23,12 +24,18 @@
             <button id="next-button" class="side-button" onclick="nextPhoto()">⮞</button>
         </div>
         <br>
+        <div id="plot" style="height: 200px; width: 100%;"></div>
+        <div id="maxLikelihood" style="margin-top: 10px; font-weight: bold;"></div>
         <label for="date-picker">Select Date:</label>
         <input type="datetime-local" id="date-picker">
-        <button onclick="updateMetadata()">Update Date</button>
+        <div id="date-buttons-container">
+            <button onclick="updateDateFromMaxLikelihood()">Update Date from Maximum Likelihood</button>
+            <button onclick="updateMetadata()">Write Date to Metadata</button>
+        </div>
         <p id="update-indicator">Date updated successfully!</p>
     </div>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
 </body>
 
 </html>
