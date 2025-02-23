@@ -176,7 +176,7 @@ def main():
     print(f"Serving on {serving_ip}")
 
     app.config["PHOTO_DIRECTORY"] = directory
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=True)
 
 
 if __name__ == "__main__":
