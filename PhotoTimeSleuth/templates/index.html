@@ -26,9 +26,10 @@
         <br>
         <div id="plot" style="height: 200px; width: 100%;"></div>
         <div id="maxLikelihood" style="margin-top: 10px; font-weight: bold;"></div>
-        <label for="date-picker">Select Date:</label>
-        <input type="datetime-local" id="date-picker">
+
         <div id="date-buttons-container">
+            <label for="date-picker">Select Date:</label>
+            <input type="datetime-local" id="date-picker">
             <button onclick="updateDateFromMaxLikelihood()">Update Date from Maximum Likelihood</button>
             <button onclick="updateMetadata()">Write Date to Metadata</button>
         </div>
