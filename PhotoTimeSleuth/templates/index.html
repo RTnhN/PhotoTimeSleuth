@@ -12,6 +12,11 @@
     <div id="content">
         <h1>Photo Time Sleuth</h1>
         <p>Photo Name: <span id="photo-name"></span></p>
+        <div id="status-container">
+            <button id="return-start" onclick="returnToStart()">Return to Start</button>
+            <progress id="photo-progress" value="0" max="100"></progress>
+            <span id="photo-progress-text">0 / 0</span>
+        </div>
         <div class="button-container">
             <p>Rotate Photo</p>
             <button class="rotate-button" onclick="rotateLeft()">⭯</button>

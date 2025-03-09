@@ -31,7 +31,6 @@ function preloadImage(index) {
         }
     }
 }
-
 function updatePhoto() {
     if (photos.length > 0) {
         const currentPhoto = photos[currentIndex];
@@ -45,9 +44,33 @@ function updatePhoto() {
         rotationAngle = 0;
         photoElement.style.transform = `rotate(${rotationAngle}deg)`;
 
+        // Update progress bar
+        updateProgressBar();
+
         // Preload previous and next images
         preloadImage((currentIndex - 1 + photos.length) % photos.length);
         preloadImage((currentIndex + 1) % photos.length);
+    }
+}
+
+function updateProgressBar() {
+    const progressBar = document.getElementById('photo-progress');
+    const progressText = document.getElementById('photo-progress-text');
+
+    if (photos.length > 0) {
+        const progressValue = ((currentIndex + 1) / photos.length) * 100;
+        progressBar.value = progressValue;
+        progressText.textContent = `${currentIndex + 1} / ${photos.length}`;
+    } else {
+        progressBar.value = 0;
+        progressText.textContent = "0 / 0";
+    }
+}
+
+function returnToStart() {
+    if (photos.length > 0) {
+        currentIndex = 0;
+        updatePhoto();
     }
 }
 
