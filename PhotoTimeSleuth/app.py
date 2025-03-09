@@ -252,9 +252,15 @@ def main():
         directory = os.getcwd()
 
     if not bday_file:
-        bday_file = os.path.join(directory, "bdays.txt")
+        home_dir = os.path.expanduser("~")
+        if not os.path.isdir(os.path.join(home_dir, "phototimesleuth")):
+            os.makedirs(os.path.join(home_dir, "phototimesleuth"))
+        bday_file = os.path.join(home_dir, "phototimesleuth", "bdays.txt")
         if not os.path.isfile(bday_file):
             make_default_bdays_file(bday_file)
+            print(f"Created default bday file at {bday_file}")
+        else:
+            print(f"Using existing bday file at {bday_file}")
 
     if not os.path.isdir(directory):
         print(f"Error: Directory {directory} does not exist or is not accessible.")
