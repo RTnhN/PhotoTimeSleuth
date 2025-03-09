@@ -135,10 +135,12 @@ async function updateMetadata() {
 async function getAgeDate() {
     const ageInput = document.getElementById('age');
     const nameSelect = document.getElementById('names');
+    const seasonSelect = document.getElementById('season');
     const selectedName = nameSelect.value;
     const formattedAge = ageInput.value;
-    if (!selectedName || !formattedAge) {
-        alert("Please select a name and an age.");
+    const selectedSeason = seasonSelect.value;
+    if (!selectedName || !formattedAge || !selectedSeason) {
+        alert("Please select a name, an age, and a season.");
         return;
     }
 
@@ -148,7 +150,8 @@ async function getAgeDate() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 person_name: selectedName,
-                age: formattedAge
+                age: formattedAge,
+                season: selectedSeason
             })
         });
 

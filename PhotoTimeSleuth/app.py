@@ -21,6 +21,13 @@ from PIL import Image
 
 app = Flask(__name__)
 
+SEASON_MAP = {
+    "spring": 3,
+    "summer": 6,
+    "fall": 9,
+    "winter": 12,
+}
+
 
 @app.route("/")
 def index():
@@ -66,11 +73,14 @@ def update_metadata():
 def get_age_date():
     data = request.get_json()
     person_name = data.get("person_name")
+    season = data.get("season")
     age = data.get("age")
     if not person_name or ".." in person_name or "/" in person_name:
         return jsonify({"error": "Invalid person name"}), 400
     if not age:
         return jsonify({"error": "Invalid age"}), 400
+    if not season:
+        return jsonify({"error": "Invalid season"}), 400
     try:
         age = int(age)
     except ValueError:
@@ -80,7 +90,7 @@ def get_age_date():
         person for person in load_names_and_bdays() if person["name"] == person_name
     ][0]["bday"]
 
-    estimated_date = calculate_date(bday, age)
+    estimated_date = calculate_date(bday, age, season)
 
     if not estimated_date:
         return jsonify({"error": "Invalid birthday or age"}), 400
@@ -135,13 +145,31 @@ def load_names_and_bdays():
     return names_and_bdays
 
 
-def calculate_date(bday, age):
+def calculate_date(bday, age, season):
     try:
         birthday = datetime.strptime(bday, "%Y-%m-%d")
         estimated_date = birthday + timedelta(days=age * 365.25)
-        return estimated_date.strftime("%Y-%m-%dT%H:%M")
+        if season == "birthday":
+            return estimated_date.strftime("%Y-%m-%dT%H:%M")
+        if season == "christmas":
+            return find_closest_season_date(estimated_date, 12, 25)
+        season_month = SEASON_MAP[season]
+        return find_closest_season_date(estimated_date, season_month, 1)
     except ValueError:
         return None
+
+
+def find_closest_season_date(estimated_date, month, day):
+    same_year_date = estimated_date.replace(month=month, day=day)
+    previous_year_date = same_year_date.replace(year=same_year_date.year - 1)
+    next_year_date = same_year_date.replace(year=same_year_date.year + 1)
+
+    closest_season_date = min(
+        [same_year_date, previous_year_date, next_year_date],
+        key=lambda d: abs((d - estimated_date).days),
+    )
+    closest_season_date = closest_season_date.replace(day=day)
+    return closest_season_date.strftime("%Y-%m-%dT%H:%M")
 
 
 @app.route("/photos/<path:filename>")
@@ -245,7 +273,7 @@ def main():
 
     app.config["PHOTO_DIRECTORY"] = directory
     app.config["BDAY_FILE"] = bday_file
-    app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
+    app.run(host="0.0.0.0", port=port, debug=False)
 
 
 if __name__ == "__main__":

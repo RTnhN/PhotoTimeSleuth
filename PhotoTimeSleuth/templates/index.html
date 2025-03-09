@@ -28,8 +28,17 @@
             <button id="next-button" class="side-button" onclick="nextPhoto()">⮞</button>
         </div>
         <div id="names-container">
+            <label for="season">Intra-year Selector:</label>
+            <select onchange="getAgeDate()" name="season" id="season">
+                <option value="spring">Spring</option>
+                <option value="summer">Summer</option>
+                <option value="fall">Fall</option>
+                <option value="winter">Winter</option>
+                <option value="birthday">Birthday</option>
+                <option value="christmas">Christmas</option>
+            </select>
             <label for="names">Name:</label>
-            <select name="names" id="names">
+            <select onchange="getAgeDate()" name="names" id="names">
             {% for name in names_and_bdays %}
                 <option value="{{ name['name'] }}">{{ name['name'] }}</option>
             {% endfor %}
