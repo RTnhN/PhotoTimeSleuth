@@ -2,12 +2,22 @@ import logging
 import os
 import sys
 from datetime import datetime, timedelta
+import io
 from .image_helper import change_image_date
 from .basic_helper import get_local_ip
 
 import shutil
-from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask import (
+    Flask,
+    jsonify,
+    render_template,
+    request,
+    send_from_directory,
+    send_file,
+)
 from werkzeug.utils import secure_filename
+
+from PIL import Image
 
 app = Flask(__name__)
 
@@ -136,8 +146,37 @@ def calculate_date(bday, age):
 
 @app.route("/photos/<path:filename>")
 def serve_photo(filename):
-    """Serve photos from the configured photo directory."""
+    """Serve downsized photos from the configured photo directory."""
     photo_dir = app.config.get("PHOTO_DIRECTORY")
+    full_path = os.path.join(photo_dir, filename)
+
+    # Check if resizing is requested via query parameters
+    width = request.args.get("width", type=int)
+    height = request.args.get("height", type=int)
+
+    if width or height:
+        # Open the image
+        try:
+            with Image.open(full_path) as img:
+                # If only one dimension is given, maintain aspect ratio
+                if width and not height:
+                    height = int((width / img.width) * img.height)
+                elif height and not width:
+                    width = int((height / img.height) * img.width)
+
+                # Resize the image
+                img = img.resize((width, height), Image.LANCZOS)
+
+                # Convert image to bytes for response
+                img_io = io.BytesIO()
+                img.save(img_io, format="JPEG")
+                img_io.seek(0)
+
+                return send_file(img_io, mimetype="image/jpeg")
+        except Exception as e:
+            return f"Error processing image: {str(e)}", 500
+
+    # Serve the original image if no resizing is requested
     return send_from_directory(photo_dir, filename)
 
 
@@ -206,7 +245,7 @@ def main():
 
     app.config["PHOTO_DIRECTORY"] = directory
     app.config["BDAY_FILE"] = bday_file
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
 
 
 if __name__ == "__main__":

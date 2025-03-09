@@ -2,6 +2,8 @@ let photos = [];
 let updatedPhotos = {};
 let currentIndex = 0;
 let rotationAngle = 0;
+let preloadedImages = {};
+let defaultImageWidth = 800;
 
 async function fetchPhotos() {
     try {
@@ -19,13 +21,33 @@ async function fetchPhotos() {
     }
 }
 
+function preloadImage(index) {
+    if (photos.length > 0 && index >= 0 && index < photos.length) {
+        const photoSrc = `/photos/${photos[index]}?width=${defaultImageWidth}`;
+        if (!preloadedImages[photoSrc]) {
+            const img = new Image();
+            img.src = photoSrc;
+            preloadedImages[photoSrc] = img;
+        }
+    }
+}
+
 function updatePhoto() {
     if (photos.length > 0) {
-        document.getElementById('photo-name').textContent = photos[currentIndex];
-        document.getElementById('photo').src = `/photos/${photos[currentIndex]}`;
-        document.getElementById('update-indicator').style.display = updatedPhotos[photos[currentIndex]] ? 'block' : 'none';
+        const currentPhoto = photos[currentIndex];
+        const photoElement = document.getElementById('photo');
+        const photoSrc = `/photos/${currentPhoto}?width=${defaultImageWidth}`;
+
+        document.getElementById('photo-name').textContent = currentPhoto;
+        photoElement.src = photoSrc;
+        document.getElementById('update-indicator').style.display = updatedPhotos[currentPhoto] ? 'block' : 'none';
+
         rotationAngle = 0;
-        document.getElementById('photo').style.transform = `rotate(${rotationAngle}deg)`;
+        photoElement.style.transform = `rotate(${rotationAngle}deg)`;
+
+        // Preload previous and next images
+        preloadImage((currentIndex - 1 + photos.length) % photos.length);
+        preloadImage((currentIndex + 1) % photos.length);
     }
 }
 
@@ -54,7 +76,6 @@ function rotateRight() {
     document.getElementById('photo').style.transform = `rotate(${rotationAngle}deg)`;
     adjustPhotoContainer(rotationAngle);
 }
-
 
 async function updateMetadata() {
     if (photos.length > 0) {
@@ -88,7 +109,6 @@ async function updateMetadata() {
     }
 }
 
-
 async function getAgeDate() {
     const ageInput = document.getElementById('age');
     const nameSelect = document.getElementById('names');
@@ -101,7 +121,7 @@ async function getAgeDate() {
 
     try {
         const response = await fetch('/api/get_age_date', {
-            method: 'POST', // Ensure method is in uppercase
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 person_name: selectedName,
@@ -111,7 +131,7 @@ async function getAgeDate() {
 
         const data = await response.json();
         if (response.ok) {
-            const estimatedDate = data.estimated_date; 
+            const estimatedDate = data.estimated_date;
             if (estimatedDate) {
                 document.getElementById('date-picker').value = estimatedDate;
             } else {
@@ -126,4 +146,3 @@ async function getAgeDate() {
 }
 
 fetchPhotos();
-
