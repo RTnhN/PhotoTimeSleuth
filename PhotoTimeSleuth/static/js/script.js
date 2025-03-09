@@ -88,7 +88,42 @@ async function updateMetadata() {
     }
 }
 
+
+async function getAgeDate() {
+    const ageInput = document.getElementById('age');
+    const nameSelect = document.getElementById('names');
+    const selectedName = nameSelect.value;
+    const formattedAge = ageInput.value;
+    if (!selectedName || !formattedAge) {
+        alert("Please select a name and an age.");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/get_age_date', {
+            method: 'POST', // Ensure method is in uppercase
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                person_name: selectedName,
+                age: formattedAge
+            })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            const estimatedDate = data.estimated_date; 
+            if (estimatedDate) {
+                document.getElementById('date-picker').value = estimatedDate;
+            } else {
+                alert("Invalid date format received from the server.");
+            }
+        } else {
+            alert("Error: " + data.error);
+        }
+    } catch (error) {
+        console.error('Error getting age date:', error);
+    }
+}
+
 fetchPhotos();
-
-
 

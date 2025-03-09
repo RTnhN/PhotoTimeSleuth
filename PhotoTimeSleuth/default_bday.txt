@@ -1,0 +1,11 @@
+# This is a basic example of a bday file.
+# Each line that starts with a # is a comment.
+# Each line is a name and a date in the format YYYY-MM-DD.
+# The date is the birthday of the person with the given name.
+# There is a tab between the name and the date.
+John Smith	1990-01-01
+Jane Doe	1980-01-01
+Bob Jones	1970-01-01
+Alice Smith	1960-01-01
+Dave Brown	1950-01-01
+Carol Lee	1940-01-01
