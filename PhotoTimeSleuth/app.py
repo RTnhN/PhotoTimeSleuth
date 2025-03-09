@@ -21,6 +21,14 @@ from werkzeug.utils import secure_filename
 from .basic_helper import get_local_ip
 from .image_helper import change_image_date
 
+
+def suppress_banner(*args, **kwargs):
+    pass
+
+
+flask.cli.show_server_banner = suppress_banner
+
+
 app = Flask(__name__)
 
 SEASON_MAP = {
