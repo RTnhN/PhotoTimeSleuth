@@ -5,7 +5,7 @@ import os
 import shutil
 import sys
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import flask.cli
 from flask import (
@@ -22,6 +22,8 @@ import webview  # PyWebView import
 
 from PhotoTimeSleuth.Helpers.basic_helper import get_local_ip
 from PhotoTimeSleuth.Helpers.image_helper import change_image_date
+from PhotoTimeSleuth.Helpers.file_helper import load_names_and_bdays
+from PhotoTimeSleuth.Helpers.date_helper import calculate_date
 
 
 def suppress_banner(*args, **kwargs):
@@ -42,18 +44,11 @@ app = Flask(
     static_folder=os.path.join(base_path, "PhotoTimeSleuth", "static"),
 )
 
-SEASON_MAP = {
-    "spring": 3,
-    "summer": 6,
-    "fall": 9,
-    "winter": 12,
-}
-
 
 @app.route("/")
 def index():
     """Serve the main HTML page."""
-    names_and_bdays = load_names_and_bdays()
+    names_and_bdays = load_names_and_bdays(app.config.get("BDAY_FILE"))
     return render_template("index.html", names_and_bdays=names_and_bdays)
 
 
@@ -106,7 +101,9 @@ def get_age_date():
         return jsonify({"error": "Invalid age"}), 400
 
     bday = [
-        person for person in load_names_and_bdays() if person["name"] == person_name
+        person
+        for person in load_names_and_bdays(app.config.get("BDAY_FILE"))
+        if person["name"] == person_name
     ][0]["bday"]
 
     estimated_date = calculate_date(bday, age, season)
@@ -144,51 +141,15 @@ def get_photos():
 @app.route("/api/names_and_bdays", methods=["GET"])
 def get_names_and_bdays():
     """API route to retrieve the names and birthdays."""
-    return jsonify({"names_and_bdays": load_names_and_bdays()}), 200
-
-
-def load_names_and_bdays():
-    """Helper function to load names and birthdays from the bday file."""
-    bday_file = app.config.get("BDAY_FILE")
-    if not bday_file or not os.path.isfile(bday_file):
-        return []
-
-    names_and_bdays = []
-    with open(bday_file, "r") as f:
-        for line in f:
-            if line.startswith("#"):
-                continue
-            name, bday = line.strip().split("\t")
-            names_and_bdays.append({"name": name, "bday": bday})
-
-    return names_and_bdays
-
-
-def calculate_date(bday, age, season):
     try:
-        birthday = datetime.strptime(bday, "%Y-%m-%d")
-        estimated_date = birthday + timedelta(days=age * 365.25)
-        if season == "birthday":
-            return estimated_date.strftime("%Y-%m-%dT%H:%M")
-        if season == "christmas":
-            return find_closest_season_date(estimated_date, 12, 25)
-        season_month = SEASON_MAP[season]
-        return find_closest_season_date(estimated_date, season_month, 1)
-    except ValueError:
-        return None
-
-
-def find_closest_season_date(estimated_date, month, day):
-    same_year_date = estimated_date.replace(month=month, day=day)
-    previous_year_date = same_year_date.replace(year=same_year_date.year - 1)
-    next_year_date = same_year_date.replace(year=same_year_date.year + 1)
-
-    closest_season_date = min(
-        [same_year_date, previous_year_date, next_year_date],
-        key=lambda d: abs((d - estimated_date).days),
-    )
-    closest_season_date = closest_season_date.replace(day=day)
-    return closest_season_date.strftime("%Y-%m-%dT%H:%M")
+        return (
+            jsonify(
+                {"names_and_bdays": load_names_and_bdays(app.config.get("BDAY_FILE"))}
+            ),
+            200,
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/photos/<path:filename>")
