@@ -49,7 +49,12 @@ app = Flask(
 def index():
     """Serve the main HTML page."""
     names_and_bdays = load_names_and_bdays(app.config.get("BDAY_FILE"))
-    return render_template("index.html", names_and_bdays=names_and_bdays)
+    return render_template(
+        "index.html",
+        names_and_bdays=names_and_bdays,
+        ip_address_port=app.config.get("SERVER_IP_PORT"),
+        photo_directory=app.config.get("PHOTO_DIRECTORY"),
+    )
 
 
 @app.route("/api/update_metadata", methods=["POST"])
@@ -222,9 +227,10 @@ def run_flask_app(directory, bday_file):
     print(f"Log file will be saved at: {log_file_path}")
     print(f"Serving on {serving_ip}")
 
+    app.config["SERVER_IP_PORT"] = f"{ip_address}:{port}"
     app.config["PHOTO_DIRECTORY"] = directory
     app.config["BDAY_FILE"] = bday_file
-    app.run(host="127.0.0.1", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=False)
 
 
 def main():
