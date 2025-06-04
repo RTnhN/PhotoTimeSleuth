@@ -4,6 +4,7 @@ import logging
 import os
 import shutil
 import sys
+import threading
 from datetime import datetime, timedelta
 
 import flask.cli
@@ -17,9 +18,10 @@ from flask import (
 )
 from PIL import Image
 from werkzeug.utils import secure_filename
+import webview  # PyWebView import
 
-from .basic_helper import get_local_ip
-from .image_helper import change_image_date
+from PhotoTimeSleuth.Helpers.basic_helper import get_local_ip
+from PhotoTimeSleuth.Helpers.image_helper import change_image_date
 
 
 def suppress_banner(*args, **kwargs):
@@ -29,7 +31,16 @@ def suppress_banner(*args, **kwargs):
 flask.cli.show_server_banner = suppress_banner
 
 
-app = Flask(__name__)
+if hasattr(sys, "_MEIPASS"):
+    base_path = sys._MEIPASS
+else:
+    base_path = os.path.abspath(".")
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(base_path, "PhotoTimeSleuth", "templates"),
+    static_folder=os.path.join(base_path, "PhotoTimeSleuth", "static"),
+)
 
 SEASON_MAP = {
     "spring": 3,
@@ -43,7 +54,6 @@ SEASON_MAP = {
 def index():
     """Serve the main HTML page."""
     names_and_bdays = load_names_and_bdays()
-
     return render_template("index.html", names_and_bdays=names_and_bdays)
 
 
@@ -65,7 +75,6 @@ def update_metadata():
     if not os.path.isfile(image_path):
         return jsonify({"error": "Image not found"}), 404
 
-    # Validate date format
     try:
         datetime.strptime(new_date, "%Y:%m:%d %H:%M:%S")
     except ValueError:
@@ -142,7 +151,7 @@ def load_names_and_bdays():
     """Helper function to load names and birthdays from the bday file."""
     bday_file = app.config.get("BDAY_FILE")
     if not bday_file or not os.path.isfile(bday_file):
-        return []  # Return an empty list instead of an error
+        return []
 
     names_and_bdays = []
     with open(bday_file, "r") as f:
@@ -188,33 +197,25 @@ def serve_photo(filename):
     photo_dir = app.config.get("PHOTO_DIRECTORY")
     full_path = os.path.join(photo_dir, filename)
 
-    # Check if resizing is requested via query parameters
     width = request.args.get("width", type=int)
     height = request.args.get("height", type=int)
 
     if width or height:
-        # Open the image
         try:
             with Image.open(full_path) as img:
-                # If only one dimension is given, maintain aspect ratio
                 if width and not height:
                     height = int((width / img.width) * img.height)
                 elif height and not width:
                     width = int((height / img.height) * img.width)
 
-                # Resize the image
                 img = img.resize((width, height), Image.LANCZOS)
-
-                # Convert image to bytes for response
                 img_io = io.BytesIO()
                 img.save(img_io, format="JPEG")
                 img_io.seek(0)
-
                 return send_file(img_io, mimetype="image/jpeg")
         except Exception as e:
             return f"Error processing image: {str(e)}", 500
 
-    # Serve the original image if no resizing is requested
     return send_from_directory(photo_dir, filename)
 
 
@@ -223,9 +224,49 @@ def make_default_bdays_file(bday_file):
     shutil.copyfile(sample_bdays_file, bday_file)
 
 
-def main():
-    import argparse
+def run_flask_app(directory, bday_file):
+    if not directory:
+        directory = os.getcwd()
 
+    if not bday_file:
+        home_dir = os.path.expanduser("~")
+        if not os.path.isdir(os.path.join(home_dir, "phototimesleuth")):
+            os.makedirs(os.path.join(home_dir, "phototimesleuth"))
+        bday_file = os.path.join(home_dir, "phototimesleuth", "bdays.txt")
+        if not os.path.isfile(bday_file):
+            make_default_bdays_file(bday_file)
+            print(f"Created default bday file at {bday_file}")
+        else:
+            print(f"Using existing bday file at {bday_file}")
+
+    if not os.path.isdir(directory):
+        print(f"Error: Directory {directory} does not exist or is not accessible.")
+        sys.exit(1)
+
+    log_file_path = os.path.join(directory, "photo_changes.log")
+    logging.basicConfig(
+        filename=log_file_path,
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+    )
+
+    ip_address = get_local_ip()
+    port = 5000
+    if not ip_address:
+        serving_ip = f"http://localhost:{port}"
+    else:
+        serving_ip = f"http://{ip_address}:{port}"
+
+    print(f"Starting server for directory: {directory}")
+    print(f"Log file will be saved at: {log_file_path}")
+    print(f"Serving on {serving_ip}")
+
+    app.config["PHOTO_DIRECTORY"] = directory
+    app.config["BDAY_FILE"] = bday_file
+    app.run(host="127.0.0.1", port=port, debug=False)
+
+
+def main():
     parser = argparse.ArgumentParser(description="Photo Time Sleuth")
     parser.add_argument(
         "--directory",
@@ -248,48 +289,35 @@ def main():
     directory = args.directory
     bday_file = args.bday_file
 
-    if not directory:
-        directory = os.getcwd()
-
-    if not bday_file:
-        home_dir = os.path.expanduser("~")
-        if not os.path.isdir(os.path.join(home_dir, "phototimesleuth")):
-            os.makedirs(os.path.join(home_dir, "phototimesleuth"))
-        bday_file = os.path.join(home_dir, "phototimesleuth", "bdays.txt")
-        if not os.path.isfile(bday_file):
-            make_default_bdays_file(bday_file)
-            print(f"Created default bday file at {bday_file}")
-        else:
-            print(f"Using existing bday file at {bday_file}")
-
-    if not os.path.isdir(directory):
-        print(f"Error: Directory {directory} does not exist or is not accessible.")
-        sys.exit(1)
-
-    # Define the log file path inside the photo directory
-    log_file_path = os.path.join(directory, "photo_changes.log")
-
-    # Configure logging dynamically
-    logging.basicConfig(
-        filename=log_file_path,
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
+    # Start Flask in a separate thread
+    flask_thread = threading.Thread(
+        target=run_flask_app, args=(directory, bday_file), daemon=True
     )
+    flask_thread.start()
 
-    ip_address = get_local_ip()
-    port = 5000
-    if not ip_address:
-        serving_ip = f"http://localhost:{port}"
-    else:
-        serving_ip = f"http://{ip_address}:{port}"
+    # Give Flask a moment to start
+    import time
 
-    print(f"Starting server for directory: {directory}")
-    print(f"Log file will be saved at: {log_file_path}")
-    print(f"Serving on {serving_ip}")
+    time.sleep(1)
 
-    app.config["PHOTO_DIRECTORY"] = directory
-    app.config["BDAY_FILE"] = bday_file
-    app.run(host="0.0.0.0", port=port, debug=False)
+    # Determine the local URL for the webview
+    local_url = "http://127.0.0.1:5000"
+
+    min_width = 800
+    min_height = 1000
+
+    # Create and show the PyWebView window
+    webview.create_window(
+        "Photo Time Sleuth",
+        local_url,
+        width=min_width,
+        height=min_height,
+        min_size=(min_width, min_height),
+    )
+    webview.start()
+
+    # When the WebView window closes, exit the script
+    sys.exit(0)
 
 
 if __name__ == "__main__":
