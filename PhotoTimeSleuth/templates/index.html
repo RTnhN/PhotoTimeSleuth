@@ -32,23 +32,28 @@
         </div>
         <p>Current Date: <span id="current-date"></span></p>
         <div onchange="getAgeDate()" id="names-container">
-            <label for="season">Intra-year Selector:</label>
-            <select name="season" id="season">
-                <option value="spring">Spring</option>
-                <option value="summer">Summer</option>
-                <option value="fall">Fall</option>
-                <option value="winter">Winter</option>
-                <option value="birthday">Birthday</option>
-                <option value="christmas">Christmas</option>
-            </select>
+            <div>
+                <label for="season">Intra-year Selector:</label>
+                <select name="season" id="season">
+                    <option value="spring">Spring</option>
+                    <option value="summer">Summer</option>
+                    <option value="fall">Fall</option>
+                    <option value="winter">Winter</option>
+                    <option value="birthday">Birthday</option>
+                    <option value="christmas">Christmas</option>
+                </select></div>
+            <div>
             <label for="names">Name:</label>
             <select  name="names" id="names">
             {% for name in names_and_bdays %}
                 <option value="{{ name['name'] }}">{{ name['name'] }}</option>
             {% endfor %}
             </select>
+            </div>
+            <div >
             <label for="age">Age:</label>
             <input type="number" name="age" id="age" min="0" max="120" value="0">
+            </div>
         </div>
         <br>
         <div id="date-buttons-container">
