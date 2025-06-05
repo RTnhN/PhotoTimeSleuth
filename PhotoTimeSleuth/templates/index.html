@@ -53,7 +53,7 @@
             <button onclick="updateMetadata()">Write Date to Metadata</button>
         </div>
         <p id="update-indicator">Date updated successfully!</p>
-        <p>Photo Directory: {{ photo_directory }}</p>
+        <p>Photo Directory: <span id="photo-directory"></span> <button onclick="pickAndSetFolder()">Change</button></p>
     </div>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 

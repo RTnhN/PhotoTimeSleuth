@@ -26,6 +26,17 @@ from PhotoTimeSleuth.Helpers.file_helper import load_names_and_bdays
 from PhotoTimeSleuth.Helpers.date_helper import calculate_date
 
 
+class API:
+    def __init__(self, window):
+        self.window = window
+
+    def pick_folder(self):
+        result = self.window.create_file_dialog(webview.FOLDER_DIALOG)
+        if result:
+            return result[0]
+        return None
+
+
 def suppress_banner(*args, **kwargs):
     pass
 
@@ -157,6 +168,17 @@ def get_names_and_bdays():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/update_directory", methods=["POST"])
+def update_directory():
+    data = request.get_json()
+    photo_dir = data.get("photo_directory")
+    if not photo_dir or ".." in photo_dir or "/" in photo_dir:
+        return jsonify({"error": "Invalid photo directory"}), 400
+
+    app.config["PHOTO_DIRECTORY"] = photo_dir
+    return jsonify({"message": "Directory updated successfully"}), 200
+
+
 @app.route("/photos/<path:filename>")
 def serve_photo(filename):
     """Serve downsized photos from the configured photo directory."""
@@ -190,9 +212,8 @@ def make_default_bdays_file(bday_file):
     shutil.copyfile(sample_bdays_file, bday_file)
 
 
-def run_flask_app(directory, bday_file):
-    if not directory:
-        directory = os.getcwd()
+def run_flask_app(bday_file):
+    directory = os.getcwd()
 
     if not bday_file:
         home_dir = os.path.expanduser("~")
@@ -209,7 +230,7 @@ def run_flask_app(directory, bday_file):
         print(f"Error: Directory {directory} does not exist or is not accessible.")
         sys.exit(1)
 
-    log_file_path = os.path.join(directory, "photo_changes.log")
+    log_file_path = os.path.join(home_dir, "photo_changes.log")
     logging.basicConfig(
         filename=log_file_path,
         level=logging.INFO,
@@ -236,14 +257,6 @@ def run_flask_app(directory, bday_file):
 def main():
     parser = argparse.ArgumentParser(description="Photo Time Sleuth")
     parser.add_argument(
-        "--directory",
-        type=str,
-        help=(
-            "Path to the directory containing photos. "
-            "If not provided, the current working directory will be used."
-        ),
-    )
-    parser.add_argument(
         "--bday-file",
         type=str,
         help=(
@@ -253,12 +266,11 @@ def main():
     )
     args = parser.parse_args()
 
-    directory = args.directory
     bday_file = args.bday_file
 
     # Start Flask in a separate thread
     flask_thread = threading.Thread(
-        target=run_flask_app, args=(directory, bday_file), daemon=True
+        target=run_flask_app, args=(bday_file,), daemon=True
     )
     flask_thread.start()
 
@@ -274,14 +286,16 @@ def main():
     min_height = 1000
 
     # Create and show the PyWebView window
-    webview.create_window(
+    window = webview.create_window(
         "Photo Time Sleuth",
         local_url,
         width=min_width,
         height=min_height,
         min_size=(min_width, min_height),
     )
-    webview.start()
+    api = API(window)
+    window.expose(api.pick_folder)
+    webview.start(None, window)
 
     # When the WebView window closes, exit the script
     sys.exit(0)

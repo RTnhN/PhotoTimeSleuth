@@ -171,4 +171,27 @@ async function getAgeDate() {
     }
 }
 
+async function pickAndSetFolder() {
+    if (window.pywebview) {
+        const folder = await window.pywebview.api.pick_folder();
+        if (folder) {
+            // Send the new folder path to Flask
+            fetch('/api/update_directory', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ photo_directory: folder })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message || data.error);
+                document.getElementById('photo-directory').textContent = folder;
+                fetchPhotos();
+            });
+        }
+    } else {
+        alert("PyWebView API not available.");
+    }
+}
+
+
 fetchPhotos();
