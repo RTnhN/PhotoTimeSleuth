@@ -12,6 +12,7 @@
 <body>
     <div id="content">
         <h1>Photo Time Sleuth</h1>
+        <p>Photo Directory: <span id="photo-directory">  </span> <button onclick="pickAndSetFolder()">Change</button></p>
         <p>Photo Name: <span id="photo-name"></span></p>
         <div id="status-container">
             <button id="return-start" onclick="returnToStart()">Return to Start</button>
@@ -32,16 +33,7 @@
         </div>
         <p>Current Date: <span id="current-date"></span></p>
         <div onchange="getAgeDate()" id="names-container">
-            <div>
-                <label for="season">Intra-year Selector:</label>
-                <select name="season" id="season">
-                    <option value="spring">Spring</option>
-                    <option value="summer">Summer</option>
-                    <option value="fall">Fall</option>
-                    <option value="winter">Winter</option>
-                    <option value="birthday">Birthday</option>
-                    <option value="christmas">Christmas</option>
-                </select></div>
+
             <div>
             <label for="names">Name:</label>
             <select  name="names" id="names">
@@ -54,6 +46,17 @@
             <label for="age">Age:</label>
             <input type="number" name="age" id="age" min="0" max="120" value="0">
             </div>
+            <div>
+                <label for="season">Intra-year Selector:</label>
+                <select name="season" id="season">
+                    <option value="spring">Spring</option>
+                    <option value="summer">Summer</option>
+                    <option value="fall">Fall</option>
+                    <option value="winter">Winter</option>
+                    <option value="birthday">Birthday</option>
+                    <option value="christmas">Christmas</option>
+                </select>
+            </div>
         </div>
         <br>
         <div id="date-buttons-container">
@@ -61,7 +64,7 @@
             <input type="date" id="date-picker">
             <button onclick="updateMetadata()">Write Date to Metadata</button>
         </div>
-        <p>Photo Directory: <span id="photo-directory"></span> <button onclick="pickAndSetFolder()">Change</button></p>
+        <br>
         <div id="auto-progress-container" style="display: flex; align-items: center;">
             <input type="checkbox" id="auto-progress" checked>
             <label for="auto-progress">Auto-Progress</label>
