@@ -16,7 +16,7 @@ from flask import (
     send_file,
     send_from_directory,
 )
-from PIL import Image
+from PIL import Image, ImageOps
 from werkzeug.utils import secure_filename
 import webview  # PyWebView import
 
@@ -215,10 +215,23 @@ def serve_photo(filename):
     if width or height:
         try:
             with Image.open(full_path) as img:
+                print(img.size)
+                img = ImageOps.exif_transpose(img)  # Respect EXIF orientation
+                orig_width, orig_height = img.size
+                print(orig_width, orig_height)
+
                 if width and not height:
-                    height = int((width / img.width) * img.height)
+                    height = int((width / orig_width) * orig_height)
                 elif height and not width:
-                    width = int((height / img.height) * img.width)
+                    width = int((height / orig_height) * orig_width)
+                elif width and height:
+                    aspect_ratio = orig_width / orig_height
+                    target_ratio = width / height
+
+                    if target_ratio > aspect_ratio:
+                        width = int(height * aspect_ratio)
+                    else:
+                        height = int(width / aspect_ratio)
 
                 img = img.resize((width, height), Image.LANCZOS)
                 img_io = io.BytesIO()
@@ -228,7 +241,9 @@ def serve_photo(filename):
         except Exception as e:
             return f"Error processing image: {str(e)}", 500
 
-    return send_from_directory(photo_dir, filename)
+    return send_file(full_path, mimetype="image/jpeg")
+
+
 
 
 def make_default_bdays_file(bday_file):
