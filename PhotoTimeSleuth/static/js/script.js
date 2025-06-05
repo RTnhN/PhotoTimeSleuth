@@ -146,6 +146,10 @@ async function updateMetadata() {
             if (response.ok) {
                 updatedPhotos[photos[currentIndex]] = true;
                 await getCurrentPhotoDate();
+                const autoProgress = document.getElementById('auto-progress').checked;
+                if (autoProgress) {
+                    await nextPhoto();
+                }
             } else {
                 alert("Error: " + data.error);
             }

@@ -57,6 +57,11 @@
             <button onclick="updateMetadata()">Write Date to Metadata</button>
         </div>
         <p>Photo Directory: <span id="photo-directory"></span> <button onclick="pickAndSetFolder()">Change</button></p>
+        <div id="auto-progress-container" style="display: flex; align-items: center;">
+            <input type="checkbox" id="auto-progress" checked>
+            <label for="auto-progress">Auto-Progress</label>
+        </div>
+        
     </div>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
