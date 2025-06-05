@@ -13,7 +13,7 @@ def calculate_date(bday, age, season):
         birthday = datetime.strptime(bday, "%Y-%m-%d")
         estimated_date = birthday + timedelta(days=age * 365.25)
         if season == "birthday":
-            return estimated_date.strftime("%Y-%m-%dT%H:%M")
+            return estimated_date.strftime("%Y-%m-%d")
         if season == "christmas":
             return find_closest_season_date(estimated_date, 12, 25)
         season_month = SEASON_MAP[season]
@@ -32,4 +32,4 @@ def find_closest_season_date(estimated_date, month, day):
         key=lambda d: abs((d - estimated_date).days),
     )
     closest_season_date = closest_season_date.replace(day=day)
-    return closest_season_date.strftime("%Y-%m-%dT%H:%M")
+    return closest_season_date.strftime("%Y-%m-%d")

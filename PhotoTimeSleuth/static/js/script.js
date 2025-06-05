@@ -13,11 +13,30 @@ async function fetchPhotos() {
             photos = data.photos;
             if (photos.length > 0) {
                 currentIndex = 0;
-                updatePhoto();
+                await updatePhoto();
             }
         }
     } catch (error) {
         console.error('Error fetching photos:', error);
+    }
+}
+
+async function getCurrentPhotoDate() {
+    try {
+        const response = await fetch('/api/get_current_photo_date?image_path=' + photos[currentIndex]);
+        const data = await response.json();
+        if (response.ok) {
+            const currentDate = data.current_date;
+            if (currentDate) {
+                document.getElementById('current-date').textContent = currentDate;
+            } else {
+                document.getElementById('current-date').textContent = "None";
+            }
+        } else {
+            document.getElementById('current-date').textContent = "None";
+        }
+    } catch (error) {
+        console.error('Error getting current photo date:', error);
     }
 }
 
@@ -31,7 +50,7 @@ function preloadImage(index) {
         }
     }
 }
-function updatePhoto() {
+async function updatePhoto() {
     if (photos.length > 0) {
         const currentPhoto = photos[currentIndex];
         const photoElement = document.getElementById('photo');
@@ -39,13 +58,12 @@ function updatePhoto() {
 
         document.getElementById('photo-name').textContent = currentPhoto;
         photoElement.src = photoSrc;
-        document.getElementById('update-indicator').style.display = updatedPhotos[currentPhoto] ? 'block' : 'none';
-
         rotationAngle = 0;
         photoElement.style.transform = `rotate(${rotationAngle}deg)`;
 
         // Update progress bar
         updateProgressBar();
+        await getCurrentPhotoDate();
 
         // Preload previous and next images
         preloadImage((currentIndex - 1 + photos.length) % photos.length);
@@ -67,24 +85,24 @@ function updateProgressBar() {
     }
 }
 
-function returnToStart() {
+async function returnToStart() {
     if (photos.length > 0) {
         currentIndex = 0;
-        updatePhoto();
+        await updatePhoto();
     }
 }
 
-function prevPhoto() {
+async function prevPhoto() {
     if (photos.length > 0) {
         currentIndex = (currentIndex - 1 + photos.length) % photos.length;
-        updatePhoto();
+        await updatePhoto();
     }
 }
 
-function nextPhoto() {
+async function nextPhoto() {
     if (photos.length > 0) {
         currentIndex = (currentIndex + 1) % photos.length;
-        updatePhoto();
+        await updatePhoto();
     }
 }
 
@@ -107,8 +125,7 @@ async function updateMetadata() {
             alert("Please select a date.");
             return;
         }
-
-        const formattedDate = selectedDate.replace("T", " ").replace(/-/g, ":") + ":00";
+        const formattedDate = selectedDate.replace(/-/g, ":");
 
         try {
             const response = await fetch('/api/update_metadata', {
@@ -122,7 +139,7 @@ async function updateMetadata() {
             const data = await response.json();
             if (response.ok) {
                 updatedPhotos[photos[currentIndex]] = true;
-                document.getElementById('update-indicator').style.display = 'block';
+                await getCurrentPhotoDate();
             } else {
                 alert("Error: " + data.error);
             }

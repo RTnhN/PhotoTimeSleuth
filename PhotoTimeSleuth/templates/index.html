@@ -25,7 +25,10 @@
         </div>
         <div id="photo-container">
             <button id="prev-button" class="side-button" onclick="prevPhoto()">⮜</button>
-            <img id="photo" src="" alt="No photo available">
+            <div>
+                <img id="photo" src="" alt="No photo available">
+                <p>Current Date: <span id="current-date"></span></p>
+            </div>
             <button id="next-button" class="side-button" onclick="nextPhoto()">⮞</button>
         </div>
         <div onchange="getAgeDate()" id="names-container">
@@ -49,10 +52,9 @@
         </div>
         <div id="date-buttons-container">
             <label for="date-picker">Select Date:</label>
-            <input type="datetime-local" id="date-picker">
+            <input type="date" id="date-picker">
             <button onclick="updateMetadata()">Write Date to Metadata</button>
         </div>
-        <p id="update-indicator">Date updated successfully!</p>
         <p>Photo Directory: <span id="photo-directory"></span> <button onclick="pickAndSetFolder()">Change</button></p>
     </div>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>

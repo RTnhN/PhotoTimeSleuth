@@ -25,6 +25,8 @@ def change_image_date(image_path, new_date):
         )
         old_date_image = exif_dict["0th"].get(piexif.ImageIFD.DateTime, "UNKNOWN")
 
+        new_date = new_date + " 00:00:00"
+
         # Update EXIF metadata with the new date
         exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal] = new_date
         exif_dict["Exif"][piexif.ExifIFD.DateTimeDigitized] = new_date
@@ -45,3 +47,45 @@ def change_image_date(image_path, new_date):
     except Exception as e:
         logging.error(f"ERROR: Failed to update '{image_path}' | Reason: {str(e)}")
         return False, str(e)
+
+
+def get_image_date(image_path):
+    """
+    Get the date from the metadata of an image.
+
+    :param image_path: Path to the input image.
+    :return: Date as a string in the format 'YYYY:MM:DD HH:MM:SS' or None if not found.
+    """
+    try:
+        # Load EXIF data
+        exif_dict = piexif.load(image_path)
+        print(exif_dict)
+
+        # Extract date values if available
+        date_original = exif_dict["Exif"].get(
+            piexif.ExifIFD.DateTimeOriginal, b"UNKNOWN"
+        )
+        date_digitized = exif_dict["Exif"].get(
+            piexif.ExifIFD.DateTimeDigitized, b"UNKNOWN"
+        )
+        date_image = exif_dict["0th"].get(piexif.ImageIFD.DateTime, b"UNKNOWN")
+
+        date_original = date_original.decode("utf-8")
+        date_digitized = date_digitized.decode("utf-8")
+        date_image = date_image.decode("utf-8")
+
+        # Return the first non-empty date value
+        if date_original != "UNKNOWN":
+            return date_original
+        elif date_digitized != "UNKNOWN":
+            return date_digitized
+        elif date_image != "UNKNOWN":
+            return date_image
+        else:
+            return None
+
+    except Exception as e:
+        logging.error(
+            f"ERROR: Failed to get date from '{image_path}' | Reason: {str(e)}"
+        )
+        return None

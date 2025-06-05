@@ -21,7 +21,7 @@ from werkzeug.utils import secure_filename
 import webview  # PyWebView import
 
 from PhotoTimeSleuth.Helpers.basic_helper import get_local_ip
-from PhotoTimeSleuth.Helpers.image_helper import change_image_date
+from PhotoTimeSleuth.Helpers.image_helper import change_image_date, get_image_date
 from PhotoTimeSleuth.Helpers.file_helper import load_names_and_bdays
 from PhotoTimeSleuth.Helpers.date_helper import calculate_date
 
@@ -87,9 +87,9 @@ def update_metadata():
         return jsonify({"error": "Image not found"}), 404
 
     try:
-        datetime.strptime(new_date, "%Y:%m:%d %H:%M:%S")
-    except ValueError:
-        return jsonify({"error": "Invalid date format. Use 'YYYY:MM:DD HH:MM:SS'"}), 400
+        datetime.strptime(new_date, "%Y:%m:%d")
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
     success, message = change_image_date(image_path, new_date)
 
@@ -128,6 +128,30 @@ def get_age_date():
         return jsonify({"error": "Invalid birthday or age"}), 400
 
     return jsonify({"estimated_date": estimated_date}), 200
+
+
+@app.route("/api/get_current_photo_date", methods=["GET"])
+def get_current_photo_date():
+    """API route to retrieve the current photo date."""
+    photo_dir = app.config.get("PHOTO_DIRECTORY")
+    if not photo_dir or not os.path.isdir(photo_dir):
+        return jsonify({"error": "Invalid directory"}), 400
+
+    image_path = os.path.join(
+        photo_dir, secure_filename(request.args.get("image_path"))
+    )
+
+    if not os.path.isfile(image_path):
+        return jsonify({"error": "Image not found"}), 404
+
+    try:
+        date = get_image_date(image_path)
+        if date:
+            return jsonify({"current_date": date}), 200
+        else:
+            return jsonify({"error": "No date found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/folder_path", methods=["GET"])
