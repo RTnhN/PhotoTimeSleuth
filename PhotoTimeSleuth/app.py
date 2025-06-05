@@ -244,6 +244,11 @@ def serve_photo(filename):
     return send_file(full_path, mimetype="image/jpeg")
 
 
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, "static/images"), "favicon.ico"
+    )
 
 
 def make_default_bdays_file(bday_file):
@@ -329,12 +334,11 @@ def main():
         "Photo Time Sleuth",
         local_url,
         width=min_width,
-        height=min_height,
         min_size=(min_width, min_height),
     )
     api = API(window)
     window.expose(api.pick_folder)
-    webview.start(None, window)
+    webview.start(None, window, icon="./static/images/favicon.png")
 
     # When the WebView window closes, exit the script
     sys.exit(0)
