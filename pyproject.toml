@@ -30,14 +30,3 @@ include = ["PhotoTimeSleuth*"]  # Ensure this matches your package directory
 [tool.setuptools.package-data]
 "PhotoTimeSleuth" = ["templates/*.html", "static/**/*", "default_bday.txt"]
 
-# PyInstaller settings
-[tool.pyinstaller]
-name = "PhotoTimeSleuth"
-entry-point = "PhotoTimeSleuth.app:main"  # Update based on actual script location
-onefile = true   # Creates a single .exe
-console = true  # Hide console for GUI apps
-icon = "assets/icon.ico"  # Optional: specify your app icon
-add-data = [
-    "templates;templates",
-    "static;static"
-]
