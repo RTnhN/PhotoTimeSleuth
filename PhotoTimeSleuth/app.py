@@ -326,8 +326,8 @@ def main():
     # Determine the local URL for the webview
     local_url = "http://127.0.0.1:5000"
 
-    min_width = 800
-    min_height = 1000
+    min_width = 600
+    min_height = 800
 
     # Create and show the PyWebView window
     window = webview.create_window(

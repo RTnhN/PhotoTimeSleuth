@@ -10,7 +10,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
+    width: 500px;
     aspect-ratio: 1/1;
 }
 
@@ -74,9 +74,10 @@ input {
 }
 
 #content {
-    width: min(800px, 100vw);
     padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    align-items: center;
+
 }

@@ -3,7 +3,7 @@ let updatedPhotos = {};
 let currentIndex = 0;
 let rotationAngle = 0;
 let preloadedImages = {};
-let defaultImageWidth = 800;
+let defaultImageWidth = 400;
 
 async function fetchPhotos() {
     try {
@@ -106,17 +106,23 @@ async function nextPhoto() {
     }
 }
 
+function updateTransform() {
+    const img = document.getElementById('photo');
+    const isHoriz = (rotationAngle % 180 === 0);
+    const scaleFactor = isHoriz ? 1 : img.naturalWidth / img.naturalHeight ;
+    img.style.transform = `rotate(${rotationAngle}deg) scale(${scaleFactor})`;
+}
+
 function rotateLeft() {
     rotationAngle -= 90;
-    document.getElementById('photo').style.transform = `rotate(${rotationAngle}deg)`;
-    adjustPhotoContainer(rotationAngle);
+    updateTransform();
 }
 
 function rotateRight() {
     rotationAngle += 90;
-    document.getElementById('photo').style.transform = `rotate(${rotationAngle}deg)`;
-    adjustPhotoContainer(rotationAngle);
+    updateTransform();
 }
+
 
 async function updateMetadata() {
     if (photos.length > 0) {
