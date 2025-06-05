@@ -215,11 +215,8 @@ def serve_photo(filename):
     if width or height:
         try:
             with Image.open(full_path) as img:
-                print(img.size)
                 img = ImageOps.exif_transpose(img)  # Respect EXIF orientation
                 orig_width, orig_height = img.size
-                print(orig_width, orig_height)
-
                 if width and not height:
                     height = int((width / orig_width) * orig_height)
                 elif height and not width:
@@ -334,7 +331,7 @@ def main():
         "Photo Time Sleuth",
         local_url,
         width=min_width,
-        min_size=(min_width, min_height),
+        min_size=(min_width, min_height)
     )
     api = API(window)
     window.expose(api.pick_folder)

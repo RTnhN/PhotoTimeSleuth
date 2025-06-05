@@ -59,7 +59,6 @@ def get_image_date(image_path):
     try:
         # Load EXIF data
         exif_dict = piexif.load(image_path)
-        print(exif_dict)
 
         # Extract date values if available
         date_original = exif_dict["Exif"].get(
