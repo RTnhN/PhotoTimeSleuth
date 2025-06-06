@@ -1,6 +1,5 @@
 import os
 import sys
-import pytest
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from PhotoTimeSleuth.Helpers.date_helper import calculate_date
