@@ -271,7 +271,7 @@ def run_flask_app(bday_file):
         print(f"Error: Directory {directory} does not exist or is not accessible.")
         sys.exit(1)
 
-    log_file_path = os.path.join(home_dir, "photo_changes.log")
+    log_file_path = os.path.join(home_dir, "phototimesleuth", "photo_changes.log")
     logging.basicConfig(
         filename=log_file_path,
         level=logging.INFO,
