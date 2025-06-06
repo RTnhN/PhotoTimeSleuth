@@ -331,7 +331,7 @@ def main():
         "Photo Time Sleuth",
         local_url,
         width=min_width,
-        min_size=(min_width, min_height)
+        min_size=(min_width, min_height),
     )
     api = API(window)
     window.expose(api.pick_folder)
