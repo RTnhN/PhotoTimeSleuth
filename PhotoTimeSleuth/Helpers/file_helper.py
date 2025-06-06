@@ -13,7 +13,7 @@ def load_names_and_bdays(bday_file):
     names_and_bdays = []
     with open(bday_file, "r") as f:
         for line in f:
-            if line.startswith("#"):
+            if line.startswith("#") or len(line.strip()) == 0:
                 continue
             if "\t" not in line:
                 raise FormatError(
