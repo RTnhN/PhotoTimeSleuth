@@ -11,6 +11,7 @@ Photo Time Sleuth is a Python-based desktop application that helps users correct
 * Use modular tools to refine estimated photo dates
 * Apply timestamp corrections directly to metadata
 * Locally hosted for secure, offline use
+* Optional integration with OpenAI to estimate dates from photos
 
 ## Installation
 

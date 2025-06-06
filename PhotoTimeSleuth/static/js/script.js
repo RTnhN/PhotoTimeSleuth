@@ -197,6 +197,54 @@ async function getAgeDate() {
     }
 }
 
+async function checkApiKey() {
+    const response = await fetch('/api/get_api_key');
+    const data = await response.json();
+    const askBtn = document.getElementById('ask-ai-button');
+    const setBtn = document.getElementById('set-api-key-button');
+    if (data.has_key) {
+        askBtn.style.display = 'inline';
+        setBtn.style.display = 'none';
+    } else {
+        askBtn.style.display = 'none';
+        setBtn.style.display = 'inline';
+    }
+}
+
+async function setApiKeyPrompt() {
+    const key = prompt('Enter OpenAI API Key');
+    if (!key) { return; }
+    const response = await fetch('/api/set_api_key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ api_key: key })
+    });
+    const data = await response.json();
+    if (response.ok) {
+        alert('API key saved.');
+        checkApiKey();
+    } else {
+        alert('Error: ' + data.error);
+    }
+}
+
+async function askAi() {
+    if (photos.length === 0) return;
+    const response = await fetch('/api/ask_ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image_path: photos[currentIndex] })
+    });
+    const data = await response.json();
+    if (response.ok) {
+        if (data.estimated_date) {
+            document.getElementById('date-picker').value = data.estimated_date;
+        }
+    } else {
+        alert('Error: ' + data.error);
+    }
+}
+
 async function pickAndSetFolder() {
     if (window.pywebview) {
         const folder = await window.pywebview.api.pick_folder();
@@ -221,3 +269,4 @@ async function pickAndSetFolder() {
 
 
 fetchPhotos();
+checkApiKey();

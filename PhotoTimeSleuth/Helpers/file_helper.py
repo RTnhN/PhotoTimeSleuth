@@ -5,6 +5,12 @@ class FormatError(Exception):
     pass
 
 
+def _key_file_path(bday_file):
+    """Return the path of the API key file based on the bday file path."""
+    directory = os.path.dirname(bday_file)
+    return os.path.join(directory, "openai_key.txt")
+
+
 def load_names_and_bdays(bday_file):
     """Helper function to load names and birthdays from the bday file."""
     if not bday_file or not os.path.isfile(bday_file):
@@ -43,3 +49,19 @@ def load_names_and_bdays(bday_file):
             names_and_bdays.append({"name": name, "bday": bday})
 
     return names_and_bdays
+
+
+def load_api_key(bday_file):
+    """Load the stored OpenAI API key if available."""
+    key_path = _key_file_path(bday_file)
+    if os.path.isfile(key_path):
+        with open(key_path, "r", encoding="utf-8") as f:
+            return f.read().strip() or None
+    return None
+
+
+def save_api_key(bday_file, api_key):
+    """Persist the OpenAI API key next to the birthday file."""
+    key_path = _key_file_path(bday_file)
+    with open(key_path, "w", encoding="utf-8") as f:
+        f.write(api_key.strip())
