@@ -64,7 +64,7 @@ I selected these seasons because they are the most common seasons for people to 
 
 ## Configuration
 
-* `default_bday.txt`: Add known birthdays (format: `name--tab-->YYYY-MM-DD`) to improve age-based estimates.
+* `bday.txt`: Add known birthdays (format: `name--tab-->YYYY-MM-DD`) to have a reference point for estimating ages. You can find this in the `phototimesleuth` directory in the user's home directory. If the file does not exist, it will be created automatically.
 
 
 ## Packaging
