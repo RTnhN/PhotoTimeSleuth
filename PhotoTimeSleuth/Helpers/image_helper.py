@@ -76,12 +76,11 @@ def get_image_date(image_path):
         # Return the first non-empty date value
         if date_original != "UNKNOWN":
             return date_original
-        elif date_digitized != "UNKNOWN":
+        if date_digitized != "UNKNOWN":
             return date_digitized
-        elif date_image != "UNKNOWN":
+        if date_image != "UNKNOWN":
             return date_image
-        else:
-            return None
+        return None
 
     except Exception as e:
         logging.error(
