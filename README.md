@@ -62,6 +62,8 @@ Intra-year seasons are based on the closest season to the birthday of the person
 
 I selected these seasons because they are the most common seasons for people to take photos. Let me know if you have any suggestions.
 
+**Usage note**: Dates for images are normally stored in the exif metadata. Jpeg files have exif metadata, but png files do not. Right now, the tool only supports jpeg files.
+
 ## Configuration
 
 * `bday.txt`: Add known birthdays (format: `name--tab-->YYYY-MM-DD`) to have a reference point for estimating ages. You can find this in the `phototimesleuth` directory in the user's home directory. If the file does not exist, it will be created automatically.
