@@ -1,12 +1,17 @@
 import os
 
+try:  # noqa: SIM105
+    import keyring  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    keyring = None
+
 
 class FormatError(Exception):
     pass
 
 
 def _key_file_path(bday_file):
-    """Return the path of the API key file based on the bday file path."""
+    """Return the fallback path of the API key file."""
     directory = os.path.dirname(bday_file)
     return os.path.join(directory, "openai_key.txt")
 
@@ -53,6 +58,12 @@ def load_names_and_bdays(bday_file):
 
 def load_api_key(bday_file):
     """Load the stored OpenAI API key if available."""
+    if keyring is not None:
+        try:  # pragma: no cover - depends on system keyring
+            return keyring.get_password("PhotoTimeSleuth", bday_file or "default")
+        except Exception:
+            pass
+
     key_path = _key_file_path(bday_file)
     if os.path.isfile(key_path):
         with open(key_path, "r", encoding="utf-8") as f:
@@ -62,6 +73,15 @@ def load_api_key(bday_file):
 
 def save_api_key(bday_file, api_key):
     """Persist the OpenAI API key next to the birthday file."""
+    if keyring is not None:
+        try:  # pragma: no cover - depends on system keyring
+            keyring.set_password(
+                "PhotoTimeSleuth", bday_file or "default", api_key.strip()
+            )
+            return
+        except Exception:
+            pass
+
     key_path = _key_file_path(bday_file)
     with open(key_path, "w", encoding="utf-8") as f:
         f.write(api_key.strip())
