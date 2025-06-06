@@ -11,10 +11,8 @@ async function fetchPhotos() {
         const data = await response.json();
         if (data.photos) {
             photos = data.photos;
-            if (photos.length > 0) {
-                currentIndex = 0;
-                await updatePhoto();
-            }
+            currentIndex = 0;
+            await updatePhoto();
         }
     } catch (error) {
         console.error('Error fetching photos:', error);
@@ -51,24 +49,25 @@ function preloadImage(index) {
     }
 }
 async function updatePhoto() {
+    const photoElement = document.getElementById('photo');
+    let photoSrc = ``;
+    let currentPhoto = '';
+    const photoNameElement = document.getElementById('photo-name');
     if (photos.length > 0) {
-        const currentPhoto = photos[currentIndex];
-        const photoElement = document.getElementById('photo');
-        const photoSrc = `/photos/${currentPhoto}?width=${defaultImageWidth}`;
-
-        document.getElementById('photo-name').textContent = currentPhoto;
-        photoElement.src = photoSrc;
-        rotationAngle = 0;
-        photoElement.style.transform = `rotate(${rotationAngle}deg)`;
-
-        // Update progress bar
-        updateProgressBar();
-        await getCurrentPhotoDate();
-
+        currentPhoto = photos[currentIndex];
+        photoSrc = `/photos/${currentPhoto}?width=${defaultImageWidth}`;
+        
         // Preload previous and next images
         preloadImage((currentIndex - 1 + photos.length) % photos.length);
         preloadImage((currentIndex + 1) % photos.length);
-    }
+    } 
+    photoNameElement.textContent = currentPhoto;
+    photoElement.src = photoSrc;
+    rotationAngle = 0;
+    photoElement.style.transform = `rotate(${rotationAngle}deg)`;
+    // Update progress bar
+    updateProgressBar();
+    await getCurrentPhotoDate();
 }
 
 function updateProgressBar() {
