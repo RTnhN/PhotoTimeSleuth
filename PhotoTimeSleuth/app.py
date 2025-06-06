@@ -22,7 +22,12 @@ import webview  # PyWebView import
 
 from PhotoTimeSleuth.Helpers.basic_helper import get_local_ip
 from PhotoTimeSleuth.Helpers.image_helper import change_image_date, get_image_date
-from PhotoTimeSleuth.Helpers.file_helper import load_names_and_bdays
+from PhotoTimeSleuth.Helpers.file_helper import (
+    load_names_and_bdays,
+    load_api_key,
+    save_api_key,
+)
+from PhotoTimeSleuth.Helpers.ai_helper import ask_ai_for_date
 from PhotoTimeSleuth.Helpers.date_helper import calculate_date
 
 
@@ -188,6 +193,48 @@ def get_names_and_bdays():
             ),
             200,
         )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/get_api_key", methods=["GET"])
+def get_api_key():
+    """Return whether an API key is stored."""
+    key = load_api_key(app.config.get("BDAY_FILE"))
+    return jsonify({"has_key": bool(key)})
+
+
+@app.route("/api/set_api_key", methods=["POST"])
+def set_api_key():
+    data = request.get_json()
+    api_key = data.get("api_key")
+    if not api_key:
+        return jsonify({"error": "Invalid API key"}), 400
+    save_api_key(app.config.get("BDAY_FILE"), api_key)
+    return jsonify({"message": "API key saved"}), 200
+
+
+@app.route("/api/ask_ai", methods=["POST"])
+def ask_ai():
+    data = request.get_json()
+    image_name = data.get("image_path")
+    if not image_name or ".." in image_name or "/" in image_name:
+        return jsonify({"error": "Invalid image path"}), 400
+
+    photo_dir = app.config.get("PHOTO_DIRECTORY")
+    image_path = os.path.join(photo_dir, secure_filename(image_name))
+    if not os.path.isfile(image_path):
+        return jsonify({"error": "Image not found"}), 404
+
+    api_key = load_api_key(app.config.get("BDAY_FILE"))
+    if not api_key:
+        return jsonify({"error": "API key not configured"}), 500
+
+    try:
+        estimated = ask_ai_for_date(image_path, api_key)
+        if estimated:
+            return jsonify({"estimated_date": estimated}), 200
+        return jsonify({"error": "No date found"}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
