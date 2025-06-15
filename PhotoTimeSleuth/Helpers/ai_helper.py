@@ -4,6 +4,10 @@ from typing import Optional
 
 import openai
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def ask_ai_for_date(image_path: str, api_key: str) -> Optional[str]:
     """Send the given image to OpenAI to estimate a date.
@@ -54,4 +58,5 @@ def ask_ai_for_date(image_path: str, api_key: str) -> Optional[str]:
     match = re.search(r"\d{4}[-:]\d{2}[-:]\d{2}", message)
     if match:
         return match.group(0).replace(":", "-")
+    logger.error(f"ERROR: Failed to get date from AI | Response: {message}")
     return None
