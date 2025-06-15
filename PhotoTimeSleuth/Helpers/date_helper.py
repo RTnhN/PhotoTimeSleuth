@@ -1,4 +1,7 @@
 from datetime import datetime, timedelta
+import logging
+
+logger = logging.getLogger(__name__)
 
 SEASON_MAP = {
     "spring": 3,
@@ -18,7 +21,10 @@ def calculate_date(bday, age, season):
             return find_closest_season_date(estimated_date, 12, 25)
         season_month = SEASON_MAP[season]
         return find_closest_season_date(estimated_date, season_month, 1)
-    except ValueError:
+    except ValueError as e:
+        logger.error(
+            f"ERROR: Failed to calculate date for {bday}, {age}, {season} | Reason: {str(e)}"
+        )
         return None
 
 
