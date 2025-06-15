@@ -5,6 +5,10 @@ Photo Time Sleuth is a Python-based desktop application that helps users correct
 ![Screenshot](./favicon.ico)
 
 
+## Demo Vid
+[![Watch the video](https://img.youtube.com/vi/HSZsw8rJv4Y/0.jpg)](https://youtu.be/HSZsw8rJv4Y)
+
+
 ## Features
 
 * View and navigate photos in a selected directory
