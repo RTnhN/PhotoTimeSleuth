@@ -234,7 +234,7 @@ def ask_ai():
         estimated = ask_ai_for_date(image_path, api_key)
         if estimated:
             return jsonify({"estimated_date": estimated}), 200
-        return jsonify({"error": "No date found"}), 500
+        return jsonify({"error": "Not Sure on Date"}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
